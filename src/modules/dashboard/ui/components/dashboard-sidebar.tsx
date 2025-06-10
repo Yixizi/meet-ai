@@ -11,6 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  // useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { BotIcon, StarIcon, VideoIcon } from "lucide-react";
@@ -28,6 +29,8 @@ const secondSection = [{ icon: StarIcon, label: "升级", href: "/upgrade" }];
 
 const DashboardSidebar = () => {
   const pathname = usePathname();
+  // const { toggleSidebar } = useSidebar();
+
   // const pathname = "/agents";
   return (
     <Sidebar>
