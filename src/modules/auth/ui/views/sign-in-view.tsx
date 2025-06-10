@@ -5,6 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
+import { FaGoogle, FaGithub } from "react-icons/fa";
 import {
   Form,
   FormControl,
@@ -46,16 +47,39 @@ const SignInView = () => {
       {
         email: data.email,
         password: data.password,
+        callbackURL: "/",
       },
       {
         onSuccess: () => {
           console.log("登陆成功");
-          router.push("/");
           setPending(false);
+
+          router.push("/");
         },
         onError: ({ error }) => {
           setError(error.message);
           setPending(false);
+        },
+      },
+    );
+  };
+
+  const onSocial = async (provider: "github" | "google") => {
+    setError(null);
+    setPending(true);
+    authClient.signIn.social(
+      {
+        provider: provider,
+        callbackURL: "/",
+      },
+      {
+        onSuccess: () => {
+          setPending(false);
+        },
+        onError: ({ error }) => {
+          setPending(false);
+
+          setError(error.message);
         },
       },
     );
@@ -142,14 +166,20 @@ const SignInView = () => {
                     variant={"outline"}
                     type="button"
                     className="w-full cursor-pointer"
+                    disabled={pending}
+                    onClick={() => onSocial("google")}
                   >
+                    <FaGoogle />
                     Google
                   </Button>
                   <Button
                     variant={"outline"}
                     type="button"
                     className="w-full cursor-pointer"
+                    disabled={pending}
+                    onClick={() => onSocial("github")}
                   >
+                    <FaGithub />
                     Github
                   </Button>
                 </div>
@@ -167,12 +197,12 @@ const SignInView = () => {
             </form>
           </Form>
           <div
-            className=" bg-radial from-green-700 to-green-900 
+            className=" bg-radial from-sidebar-accent to-sidebar
            relative hidden md:flex flex-col gap-y-4
             items-center justify-center"
           >
             <img src="/logo.svg" alt="Image" className=" size-[92px]" />
-            <p className=" text-2xl font-semibold text-white">遇见AI</p>
+            <p className=" text-2xl font-semibold text-white">会议AI</p>
           </div>
         </CardContent>
       </Card>
