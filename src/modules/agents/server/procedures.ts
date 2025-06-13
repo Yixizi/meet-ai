@@ -1,11 +1,8 @@
 import { db } from "@/db";
 import { agents } from "@/db/schema";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-} from "@/trpc/init";
+import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { z } from "zod";
-import { agentsInsertSchema } from "../schemas";
+import { agentsInsertSchema, agentsUpdateSchema } from "../schemas";
 import { and, count, desc, eq, getTableColumns, ilike, sql } from "drizzle-orm";
 import {
   DEFAULT_PAGE,
@@ -13,9 +10,51 @@ import {
   MAX_PAGE_SIZE,
   MIN_PAGE_SIZE,
 } from "@/constants";
+import { TRPCError } from "@trpc/server";
 // import { TRPCError } from "@trpc/server";
 
 export const agentsRouter = createTRPCRouter({
+  update: protectedProcedure
+    .input(agentsUpdateSchema)
+    .mutation(async ({ ctx, input }) => {
+      const [updatedAgent] = await db
+        .update(agents)
+        .set(input)
+        .where(
+          and(eq(agents.id, input.id), eq(agents.userId, ctx.auth.user.id)),
+        )
+        .returning();
+
+      if (!updatedAgent) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "代理未找到",
+        });
+      }
+      return updatedAgent;
+    }),
+  remove: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().min(1, { message: "请传入ID" }),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const [removedAgent] = await db
+        .delete(agents)
+        .where(
+          and(eq(agents.id, input.id), eq(agents.userId, ctx.auth.user.id)),
+        )
+        .returning();
+      if (!removedAgent) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "代理未找到",
+        });
+      }
+
+      return removedAgent;
+    }),
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
@@ -29,9 +68,12 @@ export const agentsRouter = createTRPCRouter({
           // ),
         })
         .from(agents)
-        .where(eq(agents.id, input.id));
+        .where(
+          and(eq(agents.id, input.id), eq(agents.userId, ctx.auth.user.id)),
+        );
 
       if (!existingAgent) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "代理未找到" });
       }
       return existingAgent;
     }),
@@ -76,7 +118,7 @@ export const agentsRouter = createTRPCRouter({
       const totalPages = Math.ceil(total.count / input.pageSize);
 
       return {
-        item: data,
+        items: data,
         total: total.count,
         totalPages,
       };
