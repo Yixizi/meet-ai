@@ -9,7 +9,7 @@ const Page = async () => {
     headers: await headers(),
   });
 
-  console.log(session);
+  // console.log(session);
   if (!session) {
     redirect("/sign-in");
   }

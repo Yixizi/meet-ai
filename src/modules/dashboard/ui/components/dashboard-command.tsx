@@ -1,5 +1,5 @@
 import {
-  CommandDialog,
+  CommandResponsiveDialog,
   CommandInput,
   CommandItem,
   CommandList,
@@ -13,12 +13,12 @@ interface DashboardCommandProps {
 
 const DashboardCommand = ({ open, setOpen }: DashboardCommandProps) => {
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
+    <CommandResponsiveDialog open={open} onOpenChange={setOpen}>
       <CommandInput placeholder="寻找会议或者代理" />
       <CommandList>
         <CommandItem>测试</CommandItem>
       </CommandList>
-    </CommandDialog>
+    </CommandResponsiveDialog>
   );
 };
 

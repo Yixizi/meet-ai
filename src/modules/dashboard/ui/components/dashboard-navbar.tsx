@@ -16,14 +16,10 @@ const DashboardNavbar = () => {
   const [commandOpen, setCommandOpen] = useState(false);
 
   useEffect(() => {
-    console.log("sad");
     const down = (e: KeyboardEvent) => {
-      console.log(e);
       if (e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        // e.stopPropagation();
         setCommandOpen((open) => !open);
-        console.log("dads");
       }
     };
 
